@@ -1,65 +1,99 @@
-import Image from "next/image";
+import { MapPin, MapPinCheckInside, Smartphone } from "lucide-react";
+import Avatar from "boring-avatars";
+import { getDashBoardData } from "@/actions/dashboard";
 
-export default function Home() {
+export default async function Home() {
+  const data = await getDashBoardData();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="container mt-10">
+      <div className="mb-8">
+        <h1 className="text-4xl font-medium">Dashboard</h1>
+        <h2 className="">ภาพรวมระบบ</h2>
+      </div>
+
+      {/* CARD SUMMARY */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 ">
+        <div className="bg-white rounded-xl w-full flex gap-5 px-8 py-4 items-center shadow">
+          <div className="text-blue-600 bg-blue-100 p-2 rounded-xl">
+            <MapPin size={32} />
+          </div>
+          <div className="flex-col items-center">
+            <h1 className="text-lg">จำนวนโซน</h1>
+            <h2 className="text-3xl font-medium">{data.zonesCount}</h2>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="bg-white rounded-xl w-full flex gap-5 px-8 py-4 items-center shadow">
+          <div className="text-emerald-600 bg-emerald-100 p-2 rounded-xl">
+            <Smartphone size={32} />
+          </div>
+          <div className="flex-col items-center">
+            <h1 className="text-lg">จำนวนอุปกรณ์</h1>
+            <h2 className="text-3xl font-medium">{data.devicesCount}</h2>
+          </div>
         </div>
-      </main>
+        <div className="bg-white rounded-xl w-full flex gap-5 px-8 py-4 items-center shadow">
+          <div className="text-violet-600 bg-violet-100 p-2 rounded-xl">
+            <MapPinCheckInside size={32} />
+          </div>
+          <div className="flex-col items-center">
+            <h1 className="text-lg">จำนวนเช็คอินทั้งหมด</h1>
+            <h2 className="text-3xl font-medium">{data.checkinsCount}</h2>
+          </div>
+        </div>
+      </div>
+
+      {/* TABLE */}
+      <div className="w-full bg-white rounded-xl shadow p-6 gap-y-4">
+        <h1 className="text-2xl font-medium mb-8">การเช็คชื่อล่าสุด</h1>
+
+        <div className="flex flex-col gap-y-3">
+          {data.recentCheckins.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">
+              ยังไม่มีข้อมูลการเช็คชื่อ
+            </p>
+          ) : (
+            data.recentCheckins.map((checkin: any) => (
+              <div
+                key={checkin._id}
+                className="flex items-center justify-between px-8 py-4 rounded-xl bg-gray-50"
+              >
+                <div className="flex items-center gap-5">
+                  <Avatar
+                    name={checkin.device_id?.name || "ไม่ทราบชื่อ"}
+                    variant="beam"
+                  />
+                  <div className="flex-col items-center">
+                    <h1 className="font-medium text-lg">
+                      {checkin.device_id?.name || "ไม่ทราบชื่อ"}
+                    </h1>
+                    <h2>
+                      {checkin.schedules_id?.course_name ||
+                        checkin.schedules_id?.course_code ||
+                        "ไม่ทราบวิชา"}
+                    </h2>
+                  </div>
+                </div>
+                <span
+                  className={`${
+                    checkin.status === "เข้าเรียน"
+                      ? "text-emerald-600 bg-emerald-100"
+                      : checkin.status === "สาย"
+                      ? "text-yellow-600 bg-yellow-100"
+                      : "text-red-600 bg-red-100"
+                  } py-2 px-4 rounded-2xl`}
+                >
+                  {checkin.status === "เข้าเรียน"
+                    ? "เข้าเรียน"
+                    : checkin.status === "LATE"
+                    ? "สาย"
+                    : "ขาดเรียน"}
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
